@@ -1,0 +1,12 @@
+{
+  "name": "socidade-primitiva",
+  "version": "1.0.0",
+  "description": "Migration tool for sociedade primitiva",
+  "main": "index.js",
+  "repository": "https://github.com/Tashima42/sociedade-primitiva.git",
+  "author": "tashima42",
+  "license": "MIT",
+  "dependencies": {
+    "puppeteer": "^5.2.1"
+  }
+}
