@@ -1,7 +1,7 @@
-const robot = require('./robots/colector')
-
 const robots = {
-  colector: require('./robots/colector')
+  colector: require('./robots/colector'),
+  uploader: require('./robots/uploader')
 }
 
-robots.colector()
+//robots.colector()
+robots.uploader()

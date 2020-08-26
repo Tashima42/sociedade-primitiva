@@ -1,11 +1,11 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
 
-(async () => {
-  const browser = await puppeteer.launch();
+const robot = async () => {
+  const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
 
-  let output = {};
+  let interMediaryObject = {};
   const episodesInfos = [];
 
   for (let i = 1; i < 17; i++) {
@@ -30,7 +30,7 @@ const fs = require('fs');
     const episodesDescription = await page.evaluate(() => {
       let description = [...document.querySelectorAll('.episode__body div')]
       return Array.prototype.map.call(description, function (t) {
-        return t.innerHTML.replace(/<br>/ig, "\n");
+        return t.innerHTML/* .replace(/<br>/ig, "\n") */;
       })
     })
 
@@ -54,7 +54,7 @@ const fs = require('fs');
     const writeEpisodesInfosToObject = () => {
       for (let k = 0; k < 10; k++) {
         for (let j = 0; j < 5; j++) {
-          output = {
+          interMediaryObject = {
             title: episodesTitle[k],
             date: episodesDate[k],
             cover: episodesCoverImage[k],
@@ -62,7 +62,7 @@ const fs = require('fs');
             description: episodesDescription[k]
           }
         }
-        episodesInfos.push(output)
+        episodesInfos.push(interMediaryObject)
       }
       console.log(`${i}`)
     }
@@ -79,4 +79,6 @@ const fs = require('fs');
   })
 
   await browser.close();
-})();
+};
+
+module.exports = robot;
