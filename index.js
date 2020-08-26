@@ -3,5 +3,5 @@ const robots = {
   uploader: require('./robots/uploader')
 }
 
-//robots.colector()
-robots.uploader()
+robots.colector()
+//robots.uploader()

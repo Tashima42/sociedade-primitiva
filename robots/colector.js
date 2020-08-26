@@ -2,14 +2,13 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 
 const robot = async () => {
-  const browser = await puppeteer.launch({ headless: false });
+  const browser = await puppeteer.launch({ headless: true });
   const page = await browser.newPage();
 
   let interMediaryObject = {};
   const episodesInfos = [];
 
   for (let i = 1; i < 17; i++) {
-
 
     await page.goto(`https://www.megafono.host/podcast/sociedade-primitiva?page=${i}`, { waitUntil: 'load' });
 
@@ -26,11 +25,14 @@ const robot = async () => {
         return t.dateTime;
       });
     })
+    for (let l = 0; l < episodesDate.length; l++) {
+      episodesDate.splice(l + 1, 1);
+    }
 
     const episodesDescription = await page.evaluate(() => {
-      let description = [...document.querySelectorAll('.episode__body div')]
+      let description = [...document.querySelectorAll('.episode__body')]
       return Array.prototype.map.call(description, function (t) {
-        return t.innerHTML/* .replace(/<br>/ig, "\n") */;
+        return t.innerHTML.replace(/(?:\r\n|\r|\n)/g, '<br>');;
       })
     })
 
@@ -80,5 +82,7 @@ const robot = async () => {
 
   await browser.close();
 };
+
+robot();
 
 module.exports = robot;
