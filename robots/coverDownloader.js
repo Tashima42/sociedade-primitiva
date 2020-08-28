@@ -1,5 +1,35 @@
+'use strict';
+
+const fs = require('fs')
+const https = require('https');
 const puppeteer = require('puppeteer');
-const fs = require('fs');
+
+/* ============================================================
+  Promise-Based Download Function
+  ============================================================ */
+
+const download = (url, destination) => new Promise((resolve, reject) => {
+  const file = fs.createWriteStream(destination);
+
+  https.get(url, response => {
+    response.pipe(file);
+
+    file.on('finish', () => {
+      file.close(resolve(true));
+    });
+  }).on('error', error => {
+    fs.unlink(destination);
+
+    reject(error.message);
+  });
+});
+
+
+/* ============================================================
+Download All Images
+============================================================ */
+
+
 
 const robot = async () => {
   const browser = await puppeteer.launch({ headless: true });
@@ -12,29 +42,7 @@ const robot = async () => {
 
     await page.goto(`https://www.megafono.host/podcast/sociedade-primitiva?page=${i}`, { waitUntil: 'load' });
 
-    const episodesTitle = await page.evaluate(() => {
-      let names = [...document.querySelectorAll('.episode__title a')];
-      return Array.prototype.map.call(names, function (t) {
-        return t.textContent;
-      });
-    })
-
-    const episodesDate = await page.evaluate(() => {
-      let date = [...document.querySelectorAll('time')];
-      return Array.prototype.map.call(date, function (t) {
-        return t.dateTime;
-      });
-    })
-    for (let l = 0; l < episodesDate.length; l++) {
-      episodesDate.splice(l + 1, 1);
-    }
-
-    const episodesDescription = await page.evaluate(() => {
-      let description = [...document.querySelectorAll('.episode__body')]
-      return Array.prototype.map.call(description, function (t) {
-        return t.innerHTML.replace(/(?:\r\n|\r|\n)/g, '<br>');;
-      })
-    })
+    await page.waitFor(1000);
 
     const episodesCoverImage = await page.evaluate(() => {
       let coverImage = [...document.querySelectorAll('.player-embed__artwork-image')];
@@ -52,34 +60,36 @@ const robot = async () => {
       });
     });
 
+
     const writeEpisodesInfosToObject = () => {
       for (let k = 0; k < 10; k++) {
         interMediaryObject = {
-          title: episodesTitle[k],
-          date: episodesDate[k],
           cover: episodesCoverImage[k],
           fileName: episodesFileName[k],
-          description: episodesDescription[k]
         }
         episodesInfos.push(interMediaryObject)
       }
       console.log(`${i}`)
     }
     writeEpisodesInfosToObject();
-  }
-  const arrayToJson = JSON.stringify(episodesInfos);
 
-  fs.writeFile(`./content/a/colector.json`, arrayToJson, 'utf8', function (err) {
-    if (err) {
-      console.log("error");
-      return console.error(err);
+    let result;
+    for (let i = 0; i < episodesInfos.length; i++) {
+      const coverEp = episodesInfos[i].fileName.replace(".mp3", ".jpg")
+      result = await download(episodesInfos[i].cover, `./content/images/${coverEp}`);
+      if (result === true) {
+        console.log('Success:', episodesInfos[i].cover, 'en downloaded successfully.');
+      } else {
+        console.log('Error:', episodesInfos[i].cover, 'ot downloaded.');
+        console.error(result);
+      }
     }
-    console.log("saved");
-  })
+  }
 
   await browser.close();
 };
 
 robot();
+
 
 module.exports = robot;

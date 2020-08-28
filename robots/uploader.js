@@ -1,19 +1,15 @@
 const puppeteer = require('puppeteer');
-const fs = require('fs').promises;
+const fs = require('fs');
+const fsCookies = fs.promises;
 
-const epInfo = {
-  title: "Número 175A - Emails com Bruno Brito (StallionsGames)",
-  date: "2020-08-17",
-  fileName: "NUMERO175EMAILSACOMBRUNOBRITO.mp3",
-  description: "Deu só baixaria nessa primeira parte. Ouça por sua conta e risco.<br>\nStallionsGames\nhttps://www.youtube.com/channel/UCoIp5rRsHa7qygwvEsi8nIg\nhttps://www.facebook.com/stallionsgames/\nPerfil pessoal do Bruno: https://www.facebook.com/BrunoStallion99\n\nIntro: Momentos de descontração no programa Cadeia\nMúsicas: LPU 9\n\n\n\n"
-}
+const episodesInfo = JSON.parse(fs.readFileSync("./content/infos/colector.json"))
 
 const robot = async () => {
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   await page.goto(`https://www.archive.org/`, { waitUntil: 'load' });
 
-  const cookiesString = await fs.readFile('cookies.json');
+  const cookiesString = await fsCookies.readFile('cookies.json');
   const cookies = JSON.parse(cookiesString);
   await page.setCookie(...cookies);
 
@@ -23,10 +19,9 @@ const robot = async () => {
 
   await page.waitForSelector('input[type=file]');
   await page.waitFor(1000);
-
   const inputUploadHandle = await page.$('input[type=file]');
-  let fileToUpload = 'test1.mp3';
-
+  //let fileToUpload = `./content/episodes/${episodesInfo[1].fileName}`;
+  let fileToUpload = `./content/episodes/test1.mp3`;
   inputUploadHandle.uploadFile(fileToUpload);
 
   await page.waitFor(1500);
@@ -34,19 +29,19 @@ const robot = async () => {
   // Set title
   await page.evaluate((title) => {
     document.getElementById("page_title").innerHTML = title;
-  }, epInfo.title)
+  }, episodesInfo[1].title)
 
   // Set URL
   await page.evaluate((url) => {
     document.getElementById("item_id").innerHTML = url;
-  }, epInfo.fileName)
+  }, episodesInfo[1].fileName)
 
   // Set description
   await page.$eval('#description', btn => btn.click());
 
   await page.evaluate((description) => {
     document.querySelector("iframe").contentDocument.querySelector("html body").innerHTML = description;
-  }, epInfo.description)
+  }, episodesInfo[1].description)
 
   // Set Tags
   await page.$eval('#subjects', btn => btn.click());
@@ -71,13 +66,15 @@ const robot = async () => {
     document.querySelector("#date_day").value = "12";
   })
 
-  await page.$eval('body', btn => btn.click());
-
-  await page.waitFor(1500);
+  await page.waitFor(9000);
 
   // Upload
   await page.$eval('button#upload_button', btn => btn.click());
 
+  // Wait redirect happens
+  await page.waitForSelector('.download-pill', { visible: true, timeout: 0 });
+  const mp3Link = await page.evaluate(() => document.querySelectorAll(".download-pill")[2].href)
+  console.log(mp3Link)
 };
 
 robot();
