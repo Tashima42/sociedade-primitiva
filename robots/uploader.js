@@ -9,7 +9,7 @@ const robot = async () => {
   const page = await browser.newPage();
   await page.goto(`https://www.archive.org/`, { waitUntil: 'load' });
 
-  const cookiesString = await fsCookies.readFile('cookies.json');
+  const cookiesString = await fsCookies.readFile('./content/credentials/cookies-archive.json');
   const cookies = JSON.parse(cookiesString);
   await page.setCookie(...cookies);
 
