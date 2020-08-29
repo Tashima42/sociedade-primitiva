@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const episodesInfo = JSON.parse(fs.readFileSync('./content/infos/colectorCode.json'))
+const episodesInfo = JSON.parse(fs.readFileSync('./content/infos/colectorCode2.json'))
 
 const creator = (infos) => {
   let interMediaryObject = {}
@@ -8,7 +8,7 @@ const creator = (infos) => {
 
   for (let i = 0; i < infos.length; i++) {
     let episodeImage = `<img src='${infos[i].cover}' /><br />`
-    let episodeDescription = infos[i].description
+    let episodeDescription = infos[i].description.replace('"', "'").replace('\"', "'")
     let episodeDate = `<br /> Publicado originalmente em: ${infos[i].date} <br />`
     let episodeLink = `<br /><a href='/${infos[i].fileName}'>${infos[i].fileName}</a>`
 
@@ -28,7 +28,7 @@ const creator = (infos) => {
 
   const arrayToJson = JSON.stringify(episodesInfoWithCode);
 
-  fs.writeFile(`./content/infos/colectorCode2.json`, arrayToJson, 'utf8', function (err) {
+  fs.writeFile(`./content/infos/colectorCode3.json`, arrayToJson, 'utf8', function (err) {
     if (err) {
       console.log("error");
       return console.error(err);
