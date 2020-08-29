@@ -54,12 +54,16 @@ const robot = async () => {
 
     const writeEpisodesInfosToObject = () => {
       for (let k = 0; k < 10; k++) {
-        interMediaryObject = {
-          title: episodesTitle[k],
-          date: episodesDate[k],
-          cover: episodesCoverImage[k],
-          fileName: episodesFileName[k],
-          description: episodesDescription[k]
+        if (i === 16 && k === 9) {
+          break;
+        } else {
+          interMediaryObject = {
+            title: episodesTitle[k],
+            date: episodesDate[k],
+            cover: ""/* episodesCoverImage[k] */,
+            fileName: episodesFileName[k],
+            description: episodesDescription[k].replace('"', "'").replace('\"', "'")
+          }
         }
         episodesInfos.push(interMediaryObject)
       }
@@ -69,7 +73,7 @@ const robot = async () => {
   }
   const arrayToJson = JSON.stringify(episodesInfos);
 
-  fs.writeFile(`./content/a/colector.json`, arrayToJson, 'utf8', function (err) {
+  fs.writeFile(`./content/infos/episodesInfos.json`, arrayToJson, 'utf8', function (err) {
     if (err) {
       console.log("error");
       return console.error(err);
