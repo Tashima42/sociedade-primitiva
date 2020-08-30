@@ -2,9 +2,14 @@ const puppeteer = require('puppeteer');
 const fs = require('fs');
 const fsCookies = fs.promises;
 
-const episodesInfo = JSON.parse(fs.readFileSync("./content/infos/colector.json"))
+const episodesInfo = JSON.parse(fs.readFileSync("./content/infos/colectorCode3.json"))
 
 const robot = async () => {
+
+  let episodesWithLink = JSON.parse(fs.readFileSync("./content/infos/colectorCode4.json"))
+
+  let intermediaryObject = {}
+
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
   await page.goto(`https://www.archive.org/`, { waitUntil: 'load' });
@@ -14,68 +19,83 @@ const robot = async () => {
   await page.setCookie(...cookies);
 
   //await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
+  for (i = 31; i < episodesInfo.length; i++) {
 
-  await page.goto(`https://www.archive.org/upload`, { waitUntil: 'load' });
 
-  await page.waitForSelector('input[type=file]');
-  await page.waitFor(1000);
-  const inputUploadHandle = await page.$('input[type=file]');
-  //let fileToUpload = `./content/episodes/${episodesInfo[1].fileName}`;
-  let fileToUpload = `./content/episodes/test1.mp3`;
-  inputUploadHandle.uploadFile(fileToUpload);
+    await page.goto(`https://www.archive.org/upload`, { waitUntil: 'load' });
 
-  await page.waitFor(1500);
+    await page.waitForSelector('input[type=file]');
+    await page.waitFor(1000);
+    const inputUploadHandle = await page.$('input[type=file]');
+    let fileToUpload = `./content/episodes/${episodesInfo[i].fileName}`;
+    //let fileToUpload = `./content/episodes/test1.mp3`;
+    inputUploadHandle.uploadFile(fileToUpload);
 
-  // Set title
-  await page.evaluate((title) => {
-    document.getElementById("page_title").innerHTML = title;
-  }, episodesInfo[1].title)
+    await page.waitFor(5000);
 
-  // Set URL
-  await page.evaluate((url) => {
-    document.getElementById("item_id").innerHTML = url;
-  }, episodesInfo[1].fileName)
+    // Set title
+    await page.evaluate((title) => {
+      document.getElementById("page_title").innerHTML = title;
+    }, episodesInfo[i].title)
 
-  // Set description
-  await page.$eval('#description', btn => btn.click());
+    // Set URL
+    /*     await page.evaluate((url) => {
+          document.getElementById("item_id").innerHTML = url;
+        }, episodesInfo[i].fileName) */
 
-  await page.evaluate((description) => {
-    document.querySelector("iframe").contentDocument.querySelector("html body").innerHTML = description;
-  }, episodesInfo[1].description)
+    // Set description
+    await page.$eval('#description', btn => btn.click());
 
-  // Set Tags
-  await page.$eval('#subjects', btn => btn.click());
+    await page.evaluate((description) => {
+      document.querySelector("iframe").contentDocument.querySelector("html body").innerHTML = description;
+    }, episodesInfo[i].description)
 
-  await page.evaluate(() => {
-    document.querySelector(".input_field").value = "podcast, sociedade primitiva";
-  })
+    // Set Tags
+    await page.$eval('#subjects', btn => btn.click());
 
-  // Set Creator
-  await page.$eval('#creator', btn => btn.click());
+    await page.evaluate(() => {
+      document.querySelector(".input_field").value = "podcast, sociedade primitiva";
+    })
 
-  await page.evaluate(() => {
-    document.querySelector(".input_field").value = "Sociedade Primitiva";
-  })
+    // Set Creator
+    await page.$eval('#creator', btn => btn.click());
 
-  // Set Date
-  await page.$eval('#date_text', btn => btn.click());
+    await page.evaluate(() => {
+      document.querySelector(".input_field").value = "Sociedade Primitiva";
+    })
 
-  await page.evaluate(() => {
-    document.querySelector("#date_year").value = "2020";
-    document.querySelector("#date_month").value = "01";
-    document.querySelector("#date_day").value = "12";
-  })
+    await page.waitFor(4000);
 
-  await page.waitFor(9000);
+    // Upload
+    await page.$eval('button#upload_button', btn => btn.click());
 
-  // Upload
-  await page.$eval('button#upload_button', btn => btn.click());
+    // Wait redirect happens
+    await page.waitForSelector('.download-pill', { visible: true, timeout: 0 });
+    const mp3Link = await page.evaluate(() => document.querySelectorAll(".download-pill")[2].href)
 
-  // Wait redirect happens
-  await page.waitForSelector('.download-pill', { visible: true, timeout: 0 });
-  const mp3Link = await page.evaluate(() => document.querySelectorAll(".download-pill")[2].href)
-  console.log(mp3Link)
-};
+    intermediaryObject = {
+      title: episodesInfo[i].title,
+      date: episodesInfo[i].date,
+      cover: episodesInfo[i].cover,
+      fileName: episodesInfo[i].fileName,
+      description: episodesInfo[i].description,
+      episodeLink: mp3Link
+
+    }
+    episodesWithLink.push(intermediaryObject)
+
+    let arrayToJson = JSON.stringify(episodesWithLink);
+
+    fs.writeFile(`./content/infos/colectorCode4.json`, arrayToJson, 'utf8', function (err) {
+      if (err) {
+        console.log("error");
+        return console.error(err);
+      }
+      console.log(`${i - 1}/${episodesInfo.length}`);
+    })
+
+  };
+}
 
 robot();
 

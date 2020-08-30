@@ -1,6 +1,6 @@
 const fs = require('fs')
 
-const episodesInfo = JSON.parse(fs.readFileSync('./content/infos/colectorCode2.json'))
+const episodesInfo = JSON.parse(fs.readFileSync('./content/infos/colectorCode3.json'))
 
 const creator = (infos) => {
   let interMediaryObject = {}
@@ -20,7 +20,8 @@ const creator = (infos) => {
       cover: infos[i].cover,
       fileName: infos[i].fileName,
       description: infos[i].description,
-      code: episodeHTML
+      episodeLink: ""
+      //code: episodeHTML
 
     }
     episodesInfoWithCode.push(interMediaryObject)
@@ -28,7 +29,7 @@ const creator = (infos) => {
 
   const arrayToJson = JSON.stringify(episodesInfoWithCode);
 
-  fs.writeFile(`./content/infos/colectorCode3.json`, arrayToJson, 'utf8', function (err) {
+  fs.writeFile(`./content/infos/colectorCode5.json`, arrayToJson, 'utf8', function (err) {
     if (err) {
       console.log("error");
       return console.error(err);
