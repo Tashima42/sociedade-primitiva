@@ -19,7 +19,7 @@ const robot = async () => {
   await page.setCookie(...cookies);
 
   //await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
-  for (i = 31; i < episodesInfo.length; i++) {
+  for (i = 62; i < episodesInfo.length; i++) {
 
 
     await page.goto(`https://www.archive.org/upload`, { waitUntil: 'load' });
@@ -100,3 +100,8 @@ const robot = async () => {
 robot();
 
 module.exports = robot;
+
+/*
+<?xml version='1.0' encoding='UTF-8'?>
+<Error><Code>SlowDown</Code><Message>Please reduce your request rate.</Message><Resource>Your upload of numero-125-falsaacusaocomcaveiragames from username pedrotashima@protonmail.com appears to be spam. If you believe this is a mistake, contact info@archive.org and include this entire message in your email.</Resource><RequestId>c6832542-3482-4ba1-ad6f-a5e4c040f2d3</RequestId></Error>
+*/
