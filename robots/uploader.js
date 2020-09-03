@@ -19,7 +19,7 @@ const robot = async () => {
   await page.setCookie(...cookies);
 
   //await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
-  for (i = 62; i < episodesInfo.length; i++) {
+  for (i = 9; i < episodesInfo.length; i++) {
 
 
     await page.goto(`https://www.archive.org/upload`, { waitUntil: 'load' });
